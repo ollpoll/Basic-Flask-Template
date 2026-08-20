@@ -107,6 +107,21 @@ def register():
         password = request.form['password']
         passwordconfirm = request.form['passwordconfirm']
         email = request.form['email']
+        permission = request.form.get('permission', 'client')
+        if permission not in ('client', 'valuator'):
+            permission = 'client'
+
+        hireprice = request.form.get('hireprice', '')
+        specialty = request.form.get('specialty', '').strip()
+        location = request.form.get('location', '').strip()
+        if permission == 'valuator':
+            try:
+                hireprice = float(hireprice)
+                if hireprice < 0 or not specialty or not location:
+                    raise ValueError
+            except (TypeError, ValueError):
+                message = "Please provide a valid hire price, specialty, and location"
+                return render_template("register.html", message=message)
 
         if password != passwordconfirm:
             message = "Error, passwords do not match"
@@ -133,7 +148,10 @@ def register():
                     flash("File not found")
 
                 password = hash_password(password)
-                DATABASE.ModifyQuery("INSERT INTO users (firstname, lastname, email, password, profilephoto) VALUES (?,?,?,?,?)", (firstname, lastname, email, password,filepath))
+                DATABASE.ModifyQuery("INSERT INTO users (firstname, lastname, email, password, permission, profilephoto) VALUES (?,?,?,?,?,?)", (firstname, lastname, email, password, permission, filepath))
+                if permission == 'valuator':
+                    user = DATABASE.ViewQuery("SELECT userid FROM users WHERE email = ?", (email,))
+                    DATABASE.ModifyQuery("INSERT INTO valuators (userid, hireprice, specialty, location) VALUES (?,?,?,?)", (user[0]['userid'], hireprice, specialty, location))
                 message = "Success, users has been added"
                 return redirect('./')
 

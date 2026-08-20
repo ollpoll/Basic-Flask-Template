@@ -23,6 +23,25 @@
             <input type="password" id="passwordconfirm" name="passwordconfirm" value="" required><br>
         <br>
 
+        <label for="permission">Register as:</label><br>
+            <select id="permission" name="permission" required>
+                <option value="client">Client</option>
+                <option value="valuator">Valuator</option>
+            </select><br>
+        <br>
+
+        <div id="valuator-details" hidden>
+            <label for="hireprice">Hire price:</label><br>
+                <input type="number" id="hireprice" name="hireprice" min="0" step="0.01"><br>
+
+            <label for="specialty">Specialty:</label><br>
+                <input type="text" id="specialty" name="specialty"><br>
+
+            <label for="location">Location:</label><br>
+                <input type="text" id="location" name="location"><br>
+            <br>
+        </div>
+
         <label for="profilephoto">Profile Photo:</label><br>
             <input type="file" name="file">
         <br>
@@ -30,4 +49,21 @@
         <input type="submit" value="Submit">
     </form> 
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const permissionSelect = document.getElementById("permission");
+    const valuatorDetails = document.getElementById("valuator-details");
+    const valuatorFields = valuatorDetails.querySelectorAll("input");
+
+    function updateValuatorFields() {
+        const isValuator = permissionSelect.value === "valuator";
+        valuatorDetails.hidden = !isValuator;
+        valuatorFields.forEach((field) => field.required = isValuator);
+    }
+
+    permissionSelect.addEventListener("change", updateValuatorFields);
+    updateValuatorFields();
+</script>
 {% endblock %}

@@ -4,10 +4,10 @@ CREATE TABLE users (
    lastname TEXT NOT NULL,
    password TEXT NOT NULL,
    email TEXT NOT NULL,
-   permission TEXT DEFAULT 'user' CHECK (permission in ('user','admin')),
+   permission TEXT DEFAULT 'client' CHECK (permission in ('client','valuator','admin')),
    lastaccess DATE DEFAULT (datetime('now','localtime')),
    status TEXT NULL,
-   profilepicture TEXT NULL,
+   profilephoto TEXT NULL,
    token TEXT NULL
 );
 
@@ -17,6 +17,15 @@ CREATE TABLE messages (
    messageimage TEXT NULL,
    author INTEGER NOT NULL,
    FOREIGN KEY(author) REFERENCES users(userid) ON DELETE CASCADE
+);
+
+CREATE TABLE valuators (
+   userid INTEGER PRIMARY KEY NOT NULL,
+   hireprice REAL DEFAULT 0,
+   specialty TEXT NULL,
+   location TEXT NULL,
+   rating REAL DEFAULT 0 CHECK (rating >= 0 AND rating <= 5),
+   FOREIGN KEY(userid) REFERENCES users(userid) ON DELETE CASCADE
 );
 
 INSERT INTO users (email, firstname, lastname, password, permission) values
